@@ -1,5 +1,3 @@
-require 'active_meta/rspec/mock/concern'
-
 RSpec::Matchers.define :define_concern_attribute do |attribute|
   description do
     "should define concern attribute '#{attribute}'"
