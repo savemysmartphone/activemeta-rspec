@@ -1,3 +1,5 @@
+require 'active_meta/rspec/mock/concern'
+
 class ActiveMeta::Attribute
   attr_accessor :eval_block
   def initialize(attribute, &block)
