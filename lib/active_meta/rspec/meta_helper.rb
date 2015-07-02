@@ -32,7 +32,7 @@ RSpec::Matchers.define :define_active_meta_attribute do |attribute|
   end
 
   failure_message_when_negated do |described_item|
-    "expected #{described_item.class.name} concern to not concern attribute #{attribute}"
+    "expected #{described_item.class.name} to not define attribute #{attribute}"
   end
 end
 
@@ -41,7 +41,7 @@ RSpec::Matchers.define :receive_active_meta_rule do |*args|
   description do
     method_name = args.first
     arguments   = args[1..-1]
-    "receive meta recipe '#{method_name}'#{" with arguments: #{arguments}" if arguments.length > 0}"
+    "receive meta rule '#{method_name}'#{" with arguments: #{arguments}" if arguments.length > 0}"
   end
 
   match do |described_item|
@@ -62,11 +62,11 @@ RSpec::Matchers.define :receive_active_meta_rule do |*args|
 
   failure_message do |described_item|
     target = @matcher_execution_context.class.metadata[:description].gsub(/^attribute /, '').to_sym
-    "expected attribute :#{args.first} to receive meta recipe :#{args.first} with #{args[1..-1]}"
+    "expected attribute :#{args.first} to receive meta rule :#{args.first} with #{args[1..-1]}"
   end
 
   failure_message_when_negated do |described_item|
     target = @matcher_execution_context.class.metadata[:description].gsub(/^attribute /, '').to_sym
-    "expected attribute :#{target} to not receive meta recipe :#{args.first}"
+    "expected attribute :#{target} to not receive meta rule :#{args.first}"
   end
 end
