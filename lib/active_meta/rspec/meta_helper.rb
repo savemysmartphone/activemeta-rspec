@@ -57,7 +57,10 @@ RSpec::Matchers.define :receive_active_meta_rule do |*args|
     end
     mock_target = mock.attributes[target].methods_called[args.first]
     return nil unless mock_target
-    mock_target == args[1..-1]
+    mock_target.each_with_index.all? do |item, idx|
+      next true if item.is_a?(Proc)
+      item == args[idx + 1]
+    end
   end
 
   failure_message do |described_item|
