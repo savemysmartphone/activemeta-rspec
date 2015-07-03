@@ -73,3 +73,24 @@ RSpec::Matchers.define :receive_active_meta_rule do |*args|
     "expected attribute :#{target} to not receive meta rule :#{args.first}"
   end
 end
+
+RSpec::Matchers.define :extend_active_meta_concern do |concern|
+  description do
+    "extend concern '#{concern}'"
+  end
+
+  match do |described_item|
+    modules = described_item.singleton_class.included_modules.map do
+      |mod| mod if mod.to_s  =~ /^ActiveMeta::Concerns::Save::*/
+    end.compact
+    modules.include?(concern)
+  end
+
+  failure_message do |described_item|
+    "expected #{described_item} to include concern #{concern}"
+  end
+
+  failure_message_when_negated do |described_item|
+    "expected #{described_item} to not include concern #{concern}"
+  end
+end
