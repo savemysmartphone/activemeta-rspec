@@ -6,7 +6,8 @@ module ActiveMeta
           attr_accessor :methods_called
 
           def initialize(&block)
-            instance_eval(&block)
+            instance_eval(&block) if block_given?
+            self
           end
 
           def method_missing(method_name, *args, &block)
@@ -20,7 +21,11 @@ module ActiveMeta
 
         def attribute(attribute_name, &block)
           @attributes ||= {}
-          @attributes[attribute_name] = Stubber.new(&block)
+          if @attributes[attribute_name]
+            @attributes[attribute_name].instance_eval(&block)
+          else
+            @attributes[attribute_name] = Stubber.new(&block)
+          end
           self
         end
 

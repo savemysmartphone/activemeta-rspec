@@ -5,7 +5,12 @@ class ActiveMeta::Attribute
   def initialize(attribute, &block)
     @attribute = attribute
     @rules = []
-    @eval_block = block
+    @eval_block = [block]
+    instance_eval(&block)
+  end
+
+  def overload(&block)
+    @eval_block.push block
     instance_eval(&block)
   end
 end
@@ -19,7 +24,8 @@ RSpec::Matchers.define :define_active_meta_attribute do |attribute|
   match do |described_item|
     if described_item.name =~ /^ActiveMeta::Concerns::/
       eval_block = described_item.instance_eval{ @eval_block }
-      ActiveMeta::Rspec::Mock::Concern.new.instance_eval(&eval_block).attribute_defined? attribute
+      stub = ActiveMeta::Rspec::Mock::Concern.new.instance_eval(&eval_block)
+      stub.attribute_defined? attribute
     elsif described_item.name =~ /^Meta::/
       described_item.attributes[attribute]
     else
@@ -50,15 +56,19 @@ RSpec::Matchers.define :receive_active_meta_rule do |*args|
       eval_block = described_item.instance_eval{ @eval_block }
       mock = ActiveMeta::Rspec::Mock::Concern.new.instance_eval(&eval_block)
     elsif described_item.name =~ /^Meta::/
-      eval_block = described_item.attributes[target].eval_block
-      mock = ActiveMeta::Rspec::Mock::Concern::Stubber.new(&eval_block)
+      mock = ActiveMeta::Rspec::Mock::Concern::Stubber.new
+      described_item.attributes[target].eval_block.each do |blok|
+        mock.instance_eval(&blok)
+      end
     else
       raise "Described item #{described_item} is not a Concern or a Meta class"
     end
+    #raise "__#{mock.inspect}__"
     mock_target = mock.attributes[target].methods_called[args.first]
     return nil unless mock_target
+#    raise "__#{mock_target.inspect}__"
     mock_target.each_with_index.all? do |item, idx|
-      next true if item.is_a?(Proc)
+      next true if item.is_a?(Proc) || args[idx + 1].is_a?(Proc)
       item == args[idx + 1]
     end
   end
