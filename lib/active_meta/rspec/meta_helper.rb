@@ -65,7 +65,7 @@ RSpec::Matchers.define :receive_active_meta_rule do |*args|
 
   failure_message do |described_item|
     target = @matcher_execution_context.class.metadata[:description].gsub(/^attribute /, '').to_sym
-    "expected attribute :#{args.first} to receive meta rule :#{args.first} with #{args[1..-1]}"
+    "expected attribute :#{target} to receive meta rule :#{args.first} with #{args[1..-1]}"
   end
 
   failure_message_when_negated do |described_item|
