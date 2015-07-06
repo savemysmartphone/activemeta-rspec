@@ -80,10 +80,7 @@ RSpec::Matchers.define :extend_active_meta_concern do |concern|
   end
 
   match do |described_item|
-    modules = described_item.singleton_class.included_modules.map do
-      |mod| mod if mod.to_s  =~ /^ActiveMeta::Concerns::Save::*/
-    end.compact
-    modules.include?(concern)
+    described_item.singleton_class.included_modules.include?(concern)
   end
 
   failure_message do |described_item|
