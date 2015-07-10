@@ -1,17 +1,20 @@
+require 'active_meta/attribute'
 require 'active_meta/rspec/mock/concern'
 
-class ActiveMeta::Attribute
-  attr_accessor :eval_block
-  def initialize(attribute, &block)
-    @attribute = attribute
-    @rules = []
-    @eval_block = [block]
-    instance_eval(&block)
-  end
+module ActiveMeta
+  class Attribute
+    attr_accessor :eval_block, :attribute
+    def initialize(attribute, &block)
+      @attribute = attribute
+      @rules = []
+      @eval_block = [block]
+      instance_eval(&block)
+    end
 
-  def overload(&block)
-    @eval_block.push block
-    instance_eval(&block)
+    def overload(&block)
+      @eval_block.push block
+      instance_eval(&block)
+    end
   end
 end
 
@@ -63,10 +66,8 @@ RSpec::Matchers.define :receive_active_meta_rule do |*args|
     else
       raise "Described item #{described_item} is not a Concern or a Meta class"
     end
-    #raise "__#{mock.inspect}__"
     mock_target = mock.attributes[target].methods_called[args.first]
     return nil unless mock_target
-#    raise "__#{mock_target.inspect}__"
     mock_target.each_with_index.all? do |item, idx|
       next true if item.is_a?(Proc) || args[idx + 1].is_a?(Proc)
       item == args[idx + 1]

@@ -2,11 +2,8 @@ module RSpec::Core::MemoizedHelpers
   def subject
     __memoized.fetch(:subject) do
       __memoized[:subject] = begin
-        if described_class < ActiveMeta::Rule
-          described = described_class || self.class.metadata.fetch(:description_args).first
-        else
-          Class === described_class ? described_class.new : described_class
-        end
+        described = described_class || self.class.metadata.fetch(:description_args).first
+        # Class === described_class ? described_class.new : described_class
       end
     end
   end
