@@ -1,6 +1,18 @@
 require 'active_meta/attribute'
 require 'active_meta/rspec/mock/concern'
 
+class Proc
+  def ==(other_value)
+    return true if other_value.is_a? Proc
+    super
+  end
+
+  def ===(other_value)
+    return true if other_value.is_a? Proc
+    super
+  end
+end
+
 module ActiveMeta
   class Attribute
     attr_accessor :eval_block, :attribute
@@ -69,7 +81,7 @@ RSpec::Matchers.define :receive_active_meta_rule do |*args|
     mock_target = mock.attributes[target].methods_called[args.first]
     return nil unless mock_target
     mock_target.each_with_index.all? do |item, idx|
-      next true if item.is_a?(Proc) || args[idx + 1].is_a?(Proc)
+      # next true if item.is_a?(Proc) || args[idx + 1].is_a?(Proc)
       item == args[idx + 1]
     end
   end
