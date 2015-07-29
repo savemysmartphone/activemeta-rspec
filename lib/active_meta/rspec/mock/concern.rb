@@ -19,7 +19,8 @@ module ActiveMeta
 
           def method_missing(method_name, *args, &block)
             @methods_called ||= {}
-            @methods_called[method_name] = [@context_chain, args]
+            contexts = @context_chain ? "#{@context_chain.join(':')}:" : nil
+            @methods_called["#{contexts}:#{method_name}"] = args
             self
           end
         end

@@ -87,11 +87,12 @@ RSpec::Matchers.define :receive_active_meta_rule do |*args|
     else
       raise "Described item #{described_item} is not a Concern or a Meta class"
     end
-    mock_target = mock.attributes[target].methods_called[args.first]
+    contexts = context_chain ? "#{context_chain.join(':')}:" : nil
+    mock_target = mock.attributes[target].methods_called["#{contexts}:#{args.first}"]
     return nil unless mock_target
 
-    return nil unless context_chain == mock_target.first
-    mock_target.last.each_with_index.all? do |item, idx|
+    # return nil unless context_chain == mock_target.first
+    mock_target.each_with_index.all? do |item, idx|
       # next true if item.is_a?(Proc) || args[idx + 1].is_a?(Proc)
       item == args[idx + 1]
     end
