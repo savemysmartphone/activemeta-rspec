@@ -10,9 +10,16 @@ module ActiveMeta
             self
           end
 
+          def context(context_name = :else, &block)
+            @context_chain ||= []
+            @context_chain.push context_name.to_sym
+            instance_eval(&block)
+            @context_chain = nil
+          end
+
           def method_missing(method_name, *args, &block)
             @methods_called ||= {}
-            @methods_called[method_name] = args
+            @methods_called[method_name] = [@context_chain, args]
             self
           end
         end

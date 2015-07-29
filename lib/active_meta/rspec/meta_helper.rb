@@ -66,7 +66,16 @@ RSpec::Matchers.define :receive_active_meta_rule do |*args|
   end
 
   match do |described_item|
-    target = @matcher_execution_context.class.metadata[:description].gsub(/^attribute /, '').to_sym
+    target = @matcher_execution_context.class.metadata[:description]
+    if target =~ /^context :/
+      context_chain = target.gsub(/^context :/, '').split(':').map(&:to_sym)
+      target = @matcher_execution_context.class.to_s.split('::')[0..-2].join('::').constantize
+      target = target.metadata[:description].gsub(/^attribute /, '').to_sym
+    else
+      target = target.gsub(/^attribute /, '').to_sym
+      context_chain = nil
+    end
+
     if described_item.name =~ /^ActiveMeta::Concerns::/
       eval_block = described_item.instance_eval{ @eval_block }
       mock = ActiveMeta::Rspec::Mock::Concern.new.instance_eval(&eval_block)
@@ -80,7 +89,9 @@ RSpec::Matchers.define :receive_active_meta_rule do |*args|
     end
     mock_target = mock.attributes[target].methods_called[args.first]
     return nil unless mock_target
-    mock_target.each_with_index.all? do |item, idx|
+
+    return nil unless context_chain == mock_target.first
+    mock_target.last.each_with_index.all? do |item, idx|
       # next true if item.is_a?(Proc) || args[idx + 1].is_a?(Proc)
       item == args[idx + 1]
     end
